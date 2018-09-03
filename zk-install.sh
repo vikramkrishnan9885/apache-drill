@@ -4,7 +4,7 @@ ZK_VERSION=3.4.12
 root_user=$1
 num_servers=$2
 
-function install_and_configure_java{
+function install_and_configure_java {
     sudo apt-get update
     sudo apt-get -y install default-jdk
     java -XX:+PrintFlagsFinal -Xms1024m -Xmx3072m -Xss1024k -XX:PermSize=384m -XX:MaxPermSize=512m -version
@@ -22,9 +22,10 @@ function install_zookeeper {
     sudo tar -xzvf zookeeper-${ZK_VERSION}.tar.gz
     sudo ln -s zookeeper-${ZK_VERSION}/ current
     sudo chown -R $root_user:root /zookeeper
+    sudo chown -R $root_user:root /etc
 }
 
-function common_zk_configs {
+function create_common_zk_configs {
     cd /zookeeper/current/conf
     cat <<'EOF' >> zoo.cfg
 # The number of milliseconds of each tick
@@ -47,10 +48,20 @@ maxClientCnxns=60
 EOF
 }
 
-function cluster_specific_configs {
+function add_cluster_specific_configs {
     cd /zookeeper/current/conf
     for (( i=1; i<=$num_servers; i++ ))
     do
         echo "server.$i=zk00$i:2888:3888" >> zoo.cfg
     done
 }
+
+function run_zk_install {
+    install_and_configure_java
+    setup_zk_folders
+    install_zookeeper
+    create_common_zk_configs
+    add_cluster_specific_configs
+}
+
+run_zk_install
