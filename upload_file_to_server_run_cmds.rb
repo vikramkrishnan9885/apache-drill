@@ -2,16 +2,20 @@ require 'net/scp'
 require "net/ssh"
 require "json"
 
-def upload_enable_zkServer_shell_script_to_server(filename)
-    file = File.read filename
+def upload_file_to_server_run_cmds(parameter_filename, command_file_name)
+
+    file = File.read parameter_filename
     data = JSON.parse(file)
+
+    commands = IO.readlines(command_file_name)
+    commands_length = commands.size
 
     username = data["username"]
     password = data["password"]
     if password == "ENV"
         password = ENV['ZK_CLUSTER_PASSWORD']
     end
-    puts password
+
     hosts = data["hosts"]
     source_file_path = data["source_file_path"]
     destination_file_path = data["destination_file_path"]
@@ -19,10 +23,11 @@ def upload_enable_zkServer_shell_script_to_server(filename)
     hosts.each do |host|
         Net::SCP.upload!(host, username,source_file_path, destination_file_path,:ssh => { :password => password })
         Net::SSH.start(host,username,:password=>password) do |ssh|
-            statement_defaults = 'sudo update-rc.d -f zkServer.sh defaults'
-            statement_enable = 'sudo update-rc.d -f zkServer.sh enable'
-            ssh.exec statement_defaults
-            ssh.exec statement_enable
+            max_val = commands_length-1
+            for i in 0..max_val
+                command = commands[i].chomp
+                ssh.exec!(command)
+            end
         end
     end
 end
