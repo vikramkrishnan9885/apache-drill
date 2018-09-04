@@ -21,8 +21,8 @@ function install_zookeeper {
     sudo wget http://www-eu.apache.org/dist/zookeeper/stable/zookeeper-${ZK_VERSION}.tar.gz
     sudo tar -xzvf zookeeper-${ZK_VERSION}.tar.gz
     sudo ln -s zookeeper-${ZK_VERSION}/ current
-    sudo chown -R $root_user:root /zookeeper
-    sudo chown -R $root_user:root /etc
+    sudo chown -R $root_user /zookeeper
+    sudo chown -R $root_user /etc/init.d
 }
 
 function create_common_zk_configs {
