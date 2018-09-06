@@ -62,6 +62,19 @@
             "destination":"/drill/current/conf/drill-env.sh"
         },
         {
+            "type":"shell-local",
+            "environment_vars": [
+                "STORAGE_ACCOUNT_NAME={{user `storage_account_name`}}",
+                "STORAGE_ACCOUNT_KEY_VALUE={{user `storage_account_key`}}"
+            ],
+            "command": "ruby generate_core_site_xml.rb"
+        },
+        {
+            "type":"file",
+            "source":"core-site.xml",
+            "destination":"/drill/current/conf/core-site.xml"
+        },
+        {
             "type":"shell",
             "inline":["sudo service drillbit.sh start"]
         }
