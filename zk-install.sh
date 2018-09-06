@@ -1,8 +1,17 @@
 #!/bin/bash
 
 ZK_VERSION=3.4.12
-root_user=$1
-num_servers=$2
+if [[ -z "${ROOT_USER}" ]]; then
+    root_user=$1
+else
+    root_user="${ROOT_USER}"
+fi
+
+if [[ -z "${ZK_SERVER_NUM}" ]]; then
+    num_servers=$2
+else
+    num_servers="${ZK_SERVER_NUM}"
+fi
 
 function install_and_configure_java {
     sudo apt-get update
