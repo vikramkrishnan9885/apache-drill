@@ -17,6 +17,7 @@ def create_myid_file_in_zk_cluster(filename)
             host_index_plus_one  = hosts.index(host) +1
             statement = 'echo ' + host_index_plus_one.to_s + ' > /zookeeper/data/myid'
             ssh.exec!(statement)
+            ssh.exec!("sudo service zkServer.sh start")
             ssh.exec!("exit")
         end
     end
