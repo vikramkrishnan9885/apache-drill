@@ -1,0 +1,69 @@
+{
+    "variables":{
+        "num_servers":"3",
+        "client_id": "{{env `ARM_CLIENT_ID`}}",
+        "client_secret": "{{env `ARM_CLIENT_SECRET`}}",
+        "subscription_id": "{{env `ARM_SUBSCRIPTION_ID`}}"
+    },
+    "builders":[{
+        "type": "azure-arm",
+
+        "client_id": "{{user `client_id`}}",
+        "client_secret": "{{user `client_secret`}}",
+        "subscription_id": "{{user `subscription_id`}}",
+
+        "os_type": "Linux",
+        "image_publisher": "Canonical",
+        "image_offer": "UbuntuServer",
+        "image_sku": "18.04-LTS",
+
+
+        "managed_image_resource_group_name": "AnalyticsDrillCluster",
+        "managed_image_name": "drillPackerImage-{{timestamp}}",
+
+        "azure_tags": {
+            "dept": "Analytics",
+            "task": "image deployment"
+        },
+    
+        "location": "West Europe",
+        "vm_size": "Standard_D8_v3"
+
+    }],
+    "provisioners": [
+        {
+            "type":"shell",
+            "environment_vars": [
+                "ROOT_USER={{user `root_user`}}",
+                "CLUSTER_NAME={{user `cluster_name`}}",
+                "ZK_SERVER_NUM={{user `number_of_zk_servers`}}"
+            ],
+            "scripts":[
+                "drill-install.sh"
+            ]
+        },
+        {
+            "type":"file",
+            "source":"drillbit.sh",
+            "destination":"/etc/init.d/drillbit.sh"
+        },
+        {
+            "type":"shell",
+            "environment_vars": [
+                "FILENAME_TO_ENABLE=drillbit.sh"
+            ],
+            "scripts":[
+                "script-enabler.sh"
+            ]
+        },
+        {
+            "type":"file",
+            "source":"drill-env.sh",
+            "destination":"/drill/current/conf/drill-env.sh"
+        },
+        {
+            "type":"shell",
+            "inline":["sudo service drillbit.sh start"]
+        }
+    ]
+}
