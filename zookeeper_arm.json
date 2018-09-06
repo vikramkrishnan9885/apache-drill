@@ -30,10 +30,30 @@
         "vm_size": "Standard_B2S"
 
     }],
-    "provisioners": [{
-        "type":"shell",
-        "scripts":[
-            "zk-install.sh"
-        ]
-    }]
+    "provisioners": [
+        {
+            "type":"shell",
+            "environment_vars": [
+                "ROOT_USER={{user `root_user`}}",
+                "ZK_SERVER_NUM={{user `number_of_zk_servers`}}"
+            ],
+            "scripts":[
+                "zk-install.sh"
+            ]
+        },
+        {
+            "type":"file",
+            "source":"zkServer.sh",
+            "destination":"/etc/init.d/zkServer.sh"
+        },
+        {
+            "type":"shell",
+            "environment_vars": [
+                "FILENAME_TO_ENABLE=zkServer.sh"
+            ],
+            "scripts":[
+                "script-enabler.sh"
+            ]
+        }
+    ]
 }
